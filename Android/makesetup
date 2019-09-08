@@ -1,0 +1,95 @@
+#! /bin/sh
+# Build a Makefile that is used to build Python and run Python on the Android
+# emulator.
+
+print_header ()
+{
+	cat >> $makefile <<-EOF
+	EMULATOR_CMD_LINE_OPTIONS := $EMULATOR_CMD_LINE_OPTIONS
+	PYTHON_DEVPT_VERSION := $PYTHON_DEVPT_VERSION
+
+	EOF
+}
+
+print_footer ()
+{
+	cat >> $makefile <<-EOF
+
+	config_args := $@
+	py_srcdir := $PY_SRCDIR
+	makefile := $makefile
+	# Cannot use \$CURDIR as, because of some distutils bug, the Makefile must
+	# also be run from the setup.py directory when building third-party
+	# extension modules.
+	MAKEFILE_DIR := \$(dir \$(abspath \$(lastword \$(MAKEFILE_LIST))))
+	include \$(py_srcdir)/Android/build.mk
+	EOF
+}
+
+list_ext_libraries ()
+{
+    # Parse the WITH_LIBRARIES environment variable.
+    libs=""
+    if test -n "$WITH_LIBRARIES"; then
+        save_IFS=$IFS; IFS=','
+        set $WITH_LIBRARIES
+        for opt; do
+            case $opt in
+                libffi) libs="$libs WITH_LIBFFI" ;;
+                ncurses) libs="$libs WITH_NCURSES" ;;
+                openssl) libs="$libs WITH_OPENSSL" ;;
+                readline) libs="$libs WITH_READLINE" ;;
+                sqlite) libs="$libs WITH_SQLITE" ;;
+                *)
+                    echo "Error: '$opt' is an unknown library name."
+                    echo "The available libraries are libffi, ncurses, openssl, readline and sqlite."
+                    exit 2 ;;
+            esac
+        done
+        IFS=$save_IFS
+    else
+        libs="WITH_NCURSES WITH_READLINE"
+    fi
+    echo $libs
+}
+
+# Source the Android variables.
+PY_SRCDIR="$(cd "$(dirname "$0")/.." && pwd)"
+. $PY_SRCDIR/Android/build-config
+
+defined_variables="APP_ABI CC AR LD RANLIB READELF STRIP \
+                   CPPFLAGS LDFLAGS CFLAGS"
+exported_variables="ANDROID_NDK_ROOT ANDROID_SDK_ROOT TOOLCHAIN \
+                    ANDROID_API ANDROID_ARCH \
+                    ANDROID_HOST ANDROID_BUILD SYSROOT"
+makefile=Makefile-android-$ANDROID_API-$ANDROID_ARCH
+if test -f Makefile; then
+    test ! -h Makefile && build_config_error \
+        "Refusing to remove the Makefile, this is not a symlink."
+fi
+rm -f Makefile
+with_libraries=$(list_ext_libraries)
+
+# Build the Makefile.
+cat > $makefile <<EOF
+# Makefile for Android API $ANDROID_API and architecture $ANDROID_ARCH.
+# Generated automatically by Android/makesetup.
+
+EOF
+
+print_header
+for var in $with_libraries; do
+    echo "$var := 1" >> $makefile
+done
+for var in $defined_variables; do
+    eval value=\$$var
+    echo "$var := $value" >> $makefile
+done
+for var in $exported_variables; do
+    eval value=\$$var
+    echo "export $var := $value" >> $makefile
+done
+print_footer "$@"
+
+ln -s $makefile Makefile
+echo "Makefile and $makefile built successfully."
