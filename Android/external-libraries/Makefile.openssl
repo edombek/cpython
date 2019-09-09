@@ -1,6 +1,6 @@
 # Android/external-libraries/Makefile.openssl
 
-OPENSSL := openssl-1.1.0g
+OPENSSL := openssl-1.1.1c
 
 # See openssl INSTALL and Configurations/10-main.conf files.
 export ANDROID_NDK := $(ANDROID_NDK_ROOT)
