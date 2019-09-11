@@ -7,6 +7,7 @@ cd Android
 export ANDROID_API=21
 export WITH_LIBRARIES="ncurses,libffi,openssl,readline,sqlite"
 
+#make clean
 ANDROID_ARCH=armv7 ./makesetup
 make
 make install

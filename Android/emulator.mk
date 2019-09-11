@@ -117,8 +117,8 @@ $(avd_dir)/$(avd_name):
 	@echo "---> Create the avd."
 	mkdir -p $(avd_dir)
 	echo "no" | $(ANDROID_SDK_ROOT)/tools/bin/avdmanager create avd --force --name $(avd_name) \
-	    --package "system-images;android-$(ANDROID_API);default;$(APP_ABI)" \
-	    --abi default/$(APP_ABI) --path $(avd_dir)/$(avd_name)
+	    --package "system-images;android-$(ANDROID_API);google_apis;$(APP_ABI)" \
+	    --abi google_apis/$(APP_ABI) --path $(avd_dir)/$(avd_name)
 
 kill_emulator: required
 	@echo "---> Kill the emulator."
