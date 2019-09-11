@@ -38,6 +38,7 @@ def install():
 
 if __name__ == "__main__":
     try:
+        adb_shell('mount -o rw,remount rootfs')
         install()
     except subprocess.CalledProcessError as e:
         print('CalledProcessError: Command %(cmd)s: stdout=<%(output)s> '
