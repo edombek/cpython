@@ -133,7 +133,7 @@ is_emulator_listening: required
 _emulator: required $(avd_dir)/$(avd_name)
 	@echo "---> Start the emulator if not already running."
 	$(python_cmd) $(py_srcdir)/Android/tools/start_emulator.py -avd $(avd_name) \
-	    -port $(CONSOLE_PORT) $(wipe_data) $(EMULATOR_CMD_LINE_OPTIONS) &
+	    -port $(CONSOLE_PORT) -dns-server 8.8.8.8  $(wipe_data) $(EMULATOR_CMD_LINE_OPTIONS) &
 	@ echo "---> Waiting for device to be ready."
 	@$(ADB) -s emulator-$(CONSOLE_PORT) wait-for-device shell getprop init.svc.bootanim; \
 	    echo "---> Device ready."

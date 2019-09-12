@@ -1,6 +1,6 @@
 # Android/external-libraries/Makefile
 
-NCURSES := ncurses-6.0
+NCURSES := ncurses-6.1
 READLINE := readline-6.3
 SQLITE := sqlite3
 SQLITE_FNAME := sqlite-autoconf-3080803
